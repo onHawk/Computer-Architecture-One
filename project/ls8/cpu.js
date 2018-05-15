@@ -56,19 +56,11 @@ class CPU {
    * op can be: ADD SUB MUL DIV INC DEC CMP
    */
   alu(op, regA, regB) {
-    // switch (op) {
-    //   case 'MUL':
-    //     return (regA *= regB);
-    //     break;
-    //   case 'ADD':
-    //     return (regA += regB);
-    //     break;
-    //   case 'SUB':
-    //     return (regA -= regB);
-    //     break;
-    //   case 'DIV':
-    //     return regA / regB;
-    // }
+    switch (op) {
+      case 'MUL':
+        this.reg[regA] *= this.reg[regB];
+        break;
+    }
   }
 
   /**
@@ -106,7 +98,7 @@ class CPU {
         break;
 
       case MUL:
-        this.reg[operandA] *= this.reg[operandB];
+        this.alu('MUL', operandA, operandB);
         console.log(this.reg[operandA]);
         this.PC += 3;
         break;
