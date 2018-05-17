@@ -6,6 +6,14 @@ const LDI = 0b10011001;
 const PRN = 0b01000011;
 const HLT = 0b00000001;
 const MUL = 0b10101010;
+
+const POP = 0b01001100;
+const PUSH = 0b01001101;
+const JMP = 0b01010000;
+const RET = 0b00001001;
+const CALL = 0b01001000;
+
+const SP = 7;
 /**
  * Class for simulating a simple Computer (CPU & memory)
  */
@@ -19,6 +27,7 @@ class CPU {
     this.reg = new Array(8).fill(0); // General-purpose registers R0-R7
 
     // Special-purpose registers
+    this.reg[SP] = 0xf4;
     this.PC = 0; // Program Counter
   }
 
@@ -88,18 +97,17 @@ class CPU {
     switch (IR) {
       case LDI:
         this.reg[operandA] = operandB;
-        // console.log(this.reg[operandA]);
+        console.log('ldi ', this.reg[operandA]);
         this.PC += 3;
         break;
 
       case PRN:
-        // console.log(this.reg[operandA]);
+        console.log('inside prn', this.reg[operandA]);
         this.PC += 2;
         break;
 
       case MUL:
         this.alu('MUL', operandA, operandB);
-        console.log(this.reg[operandA]);
         this.PC += 3;
         break;
 
@@ -107,8 +115,19 @@ class CPU {
         this.stopClock();
         break;
 
+      case PUSH:
+        this.reg[SP]--;
+        this.ram.write(this.reg[SP], this.reg[operandA]);
+        break;
+
+      case POP:
+        this.reg[operandA] = this.ram.read(this.reg[SP]);
+        this.reg[SP]++;
+
+        break;
+
       default:
-        console.log(`Unknown instruction ${this.PC}: ${IR.toString(2)}`);
+        console.log(`unknown ${this.PC}: ${IR.toString(2)}`);
         this.stopClock();
     }
     // Increment the PC register to go to the next instruction. Instructions
@@ -117,7 +136,9 @@ class CPU {
     // for any particular instruction.
     // !!! IMPLEMENT ME
 
-    // this.PC += (IR >> 6) + 1;
+    if (IR !== CALL && IR !== JMP && IR !== RET) {
+      this.PC += (IR >> 6) + 1;
+    }
   }
 }
 
